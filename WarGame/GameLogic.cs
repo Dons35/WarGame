@@ -14,7 +14,9 @@ namespace WarGame
 
         private List<Card> reward;
 
-        public string returno { get; set; }      
+        public string Returno { get; set; }
+
+        public string WarString { get; set; }
 
         public GameLogic()
         {
@@ -29,7 +31,7 @@ namespace WarGame
 
             duck.Distribute(player1, player2);
 
-            returno = duck.Distribute(player1, player2);
+            Returno = String.Format("{0} {1} {2}", "Which cards were dealt to each player?<br/><br/>", duck.Distribute(player1, player2), "<br/> ____________<br/>Begin rounds<br/>____________<br/>");
 
             int round = 0;
 
@@ -40,6 +42,8 @@ namespace WarGame
                 Card player2go = putCardInRewardPile(player2);
 
                 compare(player1go, player2go, player1, player2);
+
+                
 
                 round++;
 
@@ -59,12 +63,12 @@ namespace WarGame
         {
             if (player1.PlayerDeck.Count > player2.PlayerDeck.Count)
             {
-                return "Player 1 won";
+                return String.Format("{0} {1} {2} {3} {4}", "<br/>Player 1 won after 30 turns with ", player1.PlayerDeck.Count.ToString(), " cards in the deck, while Player 2 had", player2.PlayerDeck.Count.ToString(), "<br/><br/>");
             }
 
             else
             {
-                return "Player 2 won";
+                return String.Format("{0} {1} {2} {3} {4}", "<br/>Player 2 won after 30 turns with ", player2.PlayerDeck.Count.ToString(), " cards in the deck, while Player 1 had", player1.PlayerDeck.Count.ToString(), "<br/><br/>");
             }
         }
 
@@ -78,23 +82,81 @@ namespace WarGame
 
         private void compare(Card card, Card card2, Player player1, Player player2)
         {
-            if (card.Value > card2.Value)
+
+            for (int i = 0; i < 1; i++)
             {
-                foreach (var thing in reward)
+
+                if (card.Value == card2.Value)
                 {
-                    player1.PlayerDeck.Add(thing);
+                    timeForWar(player1, player2);
+                    continue;
+                }
+
+                if (card.Value > card2.Value)
+                {
+                    foreach (var thing in reward)
+                    {
+                        player1.PlayerDeck.Add(thing);
+                    }
+                    WarString += String.Format("{0} {1} {2} {3} {4} {5} {6} {7} {8}", "<br/>", card.Type, " of ", card.Suit, "<br/>", card2.Type, " of ", card2.Suit, "<br/><br/>End of Round: Player 1 wins and gets the reward pile<br/>___________<br/><br/><br/>");
+                }
+
+                else
+                {
+                    foreach (var thing in reward)
+                    {
+                        player2.PlayerDeck.Add(thing);
+                    }
+                    WarString += String.Format("{0} {1} {2} {3} {4} {5} {6} {7} {8}", "<br/>", card.Type, " of ", card.Suit, "<br/>", card2.Type, " of ", card2.Suit, "<br/><br/>End of Round: Player 2 wins and gets the reward pile<br/>___________<br/><br/>");
+                }
+
+            }
+
+            reward.Clear();
+        }
+
+        private void timeForWar(Player player1, Player player2)
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                putCardInRewardPile(player1);
+                putCardInRewardPile(player2);
+            }
+
+            WarString += "<br/>============WAR============<br/>";
+
+            foreach (var grape in reward)
+            {
+                WarString += grape.Type + " of " + grape.Suit + "<br/>";
+            }
+
+            if (reward[reward.Count - 2].Value > reward[reward.Count - 1].Value)
+            {
+                WarString += String.Format("{0} {1} {2} {3} {4} {5} {6} {7} {8}", "<br/>End of War: Player 1 wins and gets the reward pile, because ", reward[reward.Count - 2].Type, " of ", reward[reward.Count - 2].Suit, " beats ", reward[reward.Count - 1].Type, " of ", reward[reward.Count - 1].Suit, "<br/>___________<br/><br/>");
+
+                foreach (var noodle in reward)
+                {
+                    player1.PlayerDeck.Add(noodle);
+                }
+            }
+
+            else if (reward[reward.Count - 1].Value > reward[reward.Count - 2].Value)
+            {
+                WarString += String.Format("{0} {1} {2} {3} {4} {5} {6} {7} {8}", "<br/>End of War: Player 2 wins and gets the reward pile, because ", reward[reward.Count - 1].Type, " of ", reward[reward.Count - 1].Suit, " beats ", reward[reward.Count - 2].Type, " of ", reward[reward.Count - 2].Suit, "<br/>___________<br/><br/>");
+
+                foreach (var noodle in reward)
+                {
+                    player2.PlayerDeck.Add(noodle);
                 }
             }
 
             else
             {
-                foreach (var thing in reward)
-                {
-                    player2.PlayerDeck.Add(thing);
-                }
+                compare(reward[reward.Count - 2], reward[reward.Count - 1], player1, player2);
             }
-
-            reward.Clear();
         }
+
+
+
     }
 }
